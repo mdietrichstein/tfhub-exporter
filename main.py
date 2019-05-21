@@ -116,6 +116,7 @@ def export(module_url, target, signature, verbose, transforms):
 
             with tempfile.NamedTemporaryFile() as t:
                 logging.info(f'Freezing Graph')
+                t0 = time.time()
                 saved_model_to_frozen_graph(
                     target_directory, t.name, normalized_output_name)
                 log_duration(t0)
@@ -123,11 +124,13 @@ def export(module_url, target, signature, verbose, transforms):
                 log_directory = export_directory + '/log'
                 logging.info(
                     f'Applying transforms {transforms}.\nLogs at "{log_directory}"')
+                t0 = time.time()
                 optimize_graph(t.name, t.name, list(inputs.keys()), normalized_output_name,
                                logdir=log_directory)
                 log_duration(t0)
 
                 logging.info(f'Exporting SavedModel to "{target}"')
+                t0 = time.time()
                 convert_graph_def_to_saved_model(target, t.name, output_name)
                 log_duration(t0)
 
